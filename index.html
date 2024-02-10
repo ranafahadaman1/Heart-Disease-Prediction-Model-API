@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Heart Disease Prediction</title>
+    <style>
+      body {
+        font-family: "Arial", sans-serif;
+        background-color: #f4f4f4;
+        margin: 0;
+        padding: 0;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 100vh; /* Ensure body takes at least 100% of the viewport height */
+        border: 5px solid #333; /* Add border to the entire page for a sharp look */
+        box-sizing: border-box; /* Include border in the box model */
+      }
+
+      form {
+        margin: 50px;
+        max-width: 80%; /* Set maximum width to 80% of the screen */
+        width: 100%; /* Ensure it takes up the full width within the specified max-width */
+        background-color: #fff;
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+      }
+
+      h1 {
+        text-align: center;
+        color: #333;
+      }
+
+      label {
+        display: block;
+        margin-bottom: 5px;
+      }
+
+      input,
+      select {
+        width: 100%;
+        padding: 8px;
+        margin-bottom: 15px;
+        box-sizing: border-box;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+      }
+
+      button {
+        background-color: #4caf50;
+        color: white;
+        padding: 10px;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+      }
+
+      button:hover {
+        background-color: #2f9534;
+      }
+
+      #predictionResult {
+        display: none;
+        margin-top: 20px;
+        border-top: 1px solid #ccc;
+        padding-top: 10px;
+      }
+      label{
+        font-weight: bolder;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Heart Disease Prediction</h1>
+    <form id="predictionForm">
+      <label for="modelSelection">Select Model:</label>
+      <select
+        style="padding: 5px; margin-bottom: 15px"
+        id="modelSelection"
+        name="modelSelection"
+      >
+        <option value="predictLR">Linear Regression Model</option>
+        <option value="predictRF">Random Forest Model</option>
+      </select>
+
+      <label for="Age">Age:</label>
+      <input type="number" id="Age" name="Age" required />
+
+      <label for="Sex">Sex (0 for female, 1 for male):</label>
+      <input type="number" id="Sex" name="Sex" required />
+
+      <label for="ChestPainType">Chest Pain Type (0-3):</label>
+      <input type="number" id="ChestPainType" name="ChestPainType" required />
+
+      <label for="RestingBP">Resting Blood Pressure:</label>
+      <input type="number" id="RestingBP" name="RestingBP" required />
+
+      <label for="Cholesterol">Cholesterol:</label>
+      <input type="number" id="Cholesterol" name="Cholesterol" required />
+
+      <label for="FastingBS"
+        >Fasting Blood Sugar (0 for False, 1 for True):</label
+      >
+      <input type="number" id="FastingBS" name="FastingBS" required />
+
+      <label for="RestingECG"
+        >Resting Electrocardiographic Results (0-2):</label
+      >
+      <input type="number" id="RestingECG" name="RestingECG" required />
+
+      <label for="MaxHR">Maximum Heart Rate Achieved:</label>
+      <input type="number" id="MaxHR" name="MaxHR" required />
+
+      <label for="ExerciseAngina"
+        >Exercise Induced Angina (0 for No, 1 for Yes):</label
+      >
+      <input type="number" id="ExerciseAngina" name="ExerciseAngina" required />
+
+      <label for="Oldpeak"
+        >ST Depression Induced by Exercise Relative to Rest:</label
+      >
+      <input type="number" id="Oldpeak" name="Oldpeak" required step="0.1" />
+
+      <label for="ST_Slope">Slope of the Peak Exercise ST Segment (0-2):</label>
+      <input type="number" id="ST_Slope" name="ST_Slope" required />
+
+      <button type="button" onclick="predict()">Predict</button>
+
+      <!-- Display prediction result section -->
+      <div id="predictionResult">
+        <h2>Prediction Result</h2>
+        <p id="predictionText"></p>
+      </div>
+    </form>
+
+    <script>
+      function predict() {
+        const modelSelection = document.getElementById("modelSelection").value;
+        const Age = document.getElementById("Age").value;
+        const Sex = document.getElementById("Sex").value;
+        const ChestPainType = document.getElementById("ChestPainType").value;
+        const RestingBP = document.getElementById("RestingBP").value;
+        const Cholesterol = document.getElementById("Cholesterol").value;
+        const FastingBS = document.getElementById("FastingBS").value;
+        const RestingECG = document.getElementById("RestingECG").value;
+        const MaxHR = document.getElementById("MaxHR").value;
+        const ExerciseAngina = document.getElementById("ExerciseAngina").value;
+        const Oldpeak = document.getElementById("Oldpeak").value;
+        const ST_Slope = document.getElementById("ST_Slope").value;
+
+        const data = {
+          Age: Age,
+          Sex: Sex,
+          ChestPainType: ChestPainType,
+          RestingBP: RestingBP,
+          Cholesterol: Cholesterol,
+          FastingBS: FastingBS,
+          RestingECG: RestingECG,
+          MaxHR: MaxHR,
+          ExerciseAngina: ExerciseAngina,
+          Oldpeak: Oldpeak,
+          ST_Slope: ST_Slope,
+        };
+
+        fetch(`http://127.0.0.1:8000/${modelSelection}`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(data),
+        })
+          .then((response) => response.json())
+          .then((result) => {
+            // Display the prediction result section
+            document.getElementById("predictionResult").style.display = "block";
+
+            // Update the prediction text
+            document.getElementById(
+              "predictionText"
+            ).innerText = `Prediction: ${result.prediction}, Condition: ${result.condition}`;
+          })
+          .catch((error) => console.error("Error:", error));
+      }
+    </script>
+  </body>
+</html>
