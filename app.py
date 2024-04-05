@@ -8,6 +8,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 app = FastAPI()
 
+#Use this is you want to access the website on your phone within the same local area network.
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["192.168.1.14"],  # Update this to the specific IP address of your iPhone
